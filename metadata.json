@@ -1,0 +1,8 @@
+{
+  "name": "GOYE TRADE ASSURANCE HUB",
+  "description": "Sovereign trade-assurance and transaction-management utility. Create professional contracts, organize deal milestones, issue verified invoices, check business information registry connectivity, and maintain clear trade transaction records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

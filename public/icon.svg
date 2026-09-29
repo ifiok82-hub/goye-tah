@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#0a0f1e" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer glowing ring -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#7c3aed" stroke-width="8" opacity="0.4" />
+  
+  <!-- Main Shield Shape -->
+  <path d="M256 64 C350 64, 410 90, 416 190 C416 320, 310 400, 256 448 C202 400, 96 320, 96 190 C102 90, 162 64, 256 64 Z" 
+        fill="url(#shieldGrad)" stroke="url(#goldGrad)" stroke-width="12" stroke-linejoin="round" filter="drop-shadow(0px 10px 20px rgba(124, 58, 237, 0.3))" />
+  
+  <!-- Inner Shield Highlight -->
+  <path d="M256 80 C335 80, 390 102, 396 190 C396 295, 305 375, 256 418 C207 375, 116 295, 116 190 C122 102, 177 80, 256 80 Z" 
+        fill="none" stroke="#7c3aed" stroke-width="4" opacity="0.6" />
+
+  <!-- Lock Body -->
+  <rect x="186" y="210" width="140" height="110" rx="16" fill="url(#goldGrad)" filter="drop-shadow(0px 4px 10px rgba(0,0,0,0.3))" />
+  
+  <!-- Lock Shackle -->
+  <path d="M216 210 V170 C216 140, 230 120, 256 120 C282 120, 296 140, 296 170 V210" 
+        fill="none" stroke="url(#goldGrad)" stroke-width="20" stroke-linecap="round" />
+
+  <!-- Lock Keyhole and details -->
+  <circle cx="256" cy="255" r="14" fill="#0a0f1e" />
+  <path d="M251 255 L246 290 H266 L261 255 Z" fill="#0a0f1e" />
+
+  <!-- Success Green Checkmark overlay at bottom right of lock -->
+  <circle cx="340" cy="310" r="45" fill="#0a0f1e" stroke="#10b981" stroke-width="6" />
+  <path d="M318 310 L333 325 L363 295" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,137 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered trade user or system administrator",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "username": { "type": "string" },
+        "companyName": { "type": "string" },
+        "businessType": { "type": "string" },
+        "password": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "username", "password"]
+    },
+    "Deal": {
+      "title": "Deal",
+      "description": "Secure trade assurance room holding payment & delivery statuses",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "buyerEmail": { "type": "string" },
+        "sellerEmail": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "deliveryStatus": { "type": "string" },
+        "terms": { "type": "string" },
+        "milestones": { "type": "array" },
+        "resolutionNotes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "buyerEmail", "sellerEmail", "amount", "currency"]
+    },
+    "Contract": {
+      "title": "Contract",
+      "description": "Trade contract compiled with cryptographic signature fields",
+      "type": "object",
+      "properties": {
+        "templateType": { "type": "string" },
+        "partyA": { "type": "string" },
+        "partyB": { "type": "string" },
+        "emailA": { "type": "string" },
+        "emailB": { "type": "string" },
+        "effectiveDate": { "type": "string" },
+        "terms": { "type": "string" },
+        "docHash": { "type": "string" },
+        "isFullySigned": { "type": "boolean" },
+        "signatureA": { "type": "string" },
+        "signatureB": { "type": "string" },
+        "signedAt": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["templateType", "partyA", "partyB", "emailA", "emailB", "effectiveDate", "terms"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Itemized trade invoice and payment link tracker",
+      "type": "object",
+      "properties": {
+        "invoiceNumber": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "sellerName": { "type": "string" },
+        "sellerDetails": { "type": "string" },
+        "buyerName": { "type": "string" },
+        "buyerDetails": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "currency": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "payLink": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invoiceNumber", "dueDate", "sellerName", "buyerName", "items", "total", "currency"]
+    },
+    "Dispute": {
+      "title": "Dispute",
+      "description": "Compliance lock dispute ledger",
+      "type": "object",
+      "properties": {
+        "dealId": { "type": "string" },
+        "status": { "type": "string" },
+        "initiator": { "type": "string" },
+        "reason": { "type": "string" },
+        "description": { "type": "string" },
+        "messages": { "type": "array" },
+        "evidenceList": { "type": "array" },
+        "resolutionNotes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["dealId", "initiator", "reason", "description"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable ledger record of server operations & security events",
+      "type": "object",
+      "properties": {
+        "dealId": { "type": "string" },
+        "event": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["event", "details", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles indexed by User ID"
+    },
+    "deals/{dealId}": {
+      "schema": { "$ref": "#/entities/Deal" },
+      "description": "Active trade assurance deal documents"
+    },
+    "contracts/{contractId}": {
+      "schema": { "$ref": "#/entities/Contract" },
+      "description": "Cryptographically-hashed standard trade contracts"
+    },
+    "invoices/{invoiceId}": {
+      "schema": { "$ref": "#/entities/Invoice" },
+      "description": "Corporate billing invoices with unique document links"
+    },
+    "disputes/{disputeId}": {
+      "schema": { "$ref": "#/entities/Dispute" },
+      "description": "Mediator dispute logs for transaction compliance"
+    },
+    "auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable system and secure operational trace logs"
+    }
+  }
+}
