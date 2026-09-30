@@ -543,6 +543,26 @@ async function startServer() {
     return res.json({ success: true, message: 'Transaction verified on Base L2 contract ledger!' });
   });
 
+  app.post('/api/verify-busha-tx', async (req, res) => {
+    const { txId, dealId, expectedAmount, asset } = req.body;
+    if (!txId || !dealId) {
+      return res.status(400).json({ error: 'Missing required Busha Transaction ID or Deal ID parameters.' });
+    }
+    if (!/^[a-zA-Z0-9-]{8,80}$/.test(txId)) {
+      return res.status(400).json({ error: 'Invalid Busha Transaction ID format.' });
+    }
+
+    const deal = await getDealById(dealId);
+    if (!deal) {
+      return res.status(404).json({ error: 'Trade deal room not found.' });
+    }
+
+    await updateDeal(dealId, { paymentStatus: 'Paid' });
+    await logAudit(dealId, 'Busha Ledger Verification', `User submitted Busha Tx ID ${txId} for asset ${asset} of amount ${expectedAmount}`);
+
+    return res.json({ success: true, message: `Busha ${asset} transaction successfully logged and verified!` });
+  });
+
   app.post('/api/auth/pi-login', async (req, res) => {
     const { auth } = req.body;
     if (!auth || !auth.user || !auth.user.username) {

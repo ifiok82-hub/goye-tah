@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { isPiBrowser } from '../utils/piDetection';
-import { RefreshCw, Clipboard, Check, ExternalLink, ShieldCheck, X } from 'lucide-react';
+import { RefreshCw, ShieldCheck, X } from 'lucide-react';
 
 interface PaymentAdapterProps {
   deal: { id: string; amount: number; currency: string; title: string };
@@ -11,27 +11,17 @@ interface PaymentAdapterProps {
 
 export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, configStatus }: PaymentAdapterProps) {
   const [inPiBrowser, setInPiBrowser] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<'PI' | 'PAYSTACK' | 'FLUTTERWAVE' | 'USDT_BEP20' | 'USDC_BASE'>('PI');
+  const [selectedMethod, setSelectedMethod] = useState<'PI' | 'PAYSTACK' | 'FLUTTERWAVE' | 'BUSHA_USDT' | 'BUSHA_USDC'>('PI');
   
-  // Tx input state
-  const [txHash, setTxHash] = useState('');
+  // Busha input state
+  const [bushaTxId, setBushaTxId] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState('');
-  const [copied, setCopied] = useState(false);
-
-  // Address defaults with fallbacks
-  const usdtAddress = import.meta.env.VITE_USDT_BEP20_ADDRESS || '0xBEc500DbE604Cee54B820FDEC4AA372D04301284';
-  const usdcAddress = import.meta.env.VITE_USDC_BASE_ADDRESS || '0xBA5E00DbE604Cee54B820FDEC4AA372D04301284';
+  const [showPendingBadge, setShowPendingBadge] = useState(false);
 
   useEffect(() => {
     setInPiBrowser(isPiBrowser());
   }, []);
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   // Pi SDK integration handler
   const handlePiSDKPayment = async () => {
@@ -51,7 +41,6 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
 
       const paymentCallbacks = {
         onReadyForServerApproval: async (paymentId: string) => {
-          // Approving payment on the Express node
           const res = await fetch(`/api/pi-payment/approve`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -81,43 +70,44 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
 
       await piInstance.createPayment(paymentData, paymentCallbacks);
     } catch (err: any) {
-      // Fallback checkout trigger if Pi is mocked/simulated
       setVerificationError(err.message || 'Direct browser simulated execution.');
       setIsVerifying(false);
     }
   };
 
-  const verifyBlockchainTx = async (e: React.FormEvent) => {
+  const verifyBushaTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!txHash.trim()) {
-      setVerificationError('Transaction Hash is required.');
+    if (!bushaTxId.trim()) {
+      setVerificationError('Busha Transaction ID / Hash is required.');
       return;
     }
 
     setVerificationError('');
     setIsVerifying(true);
-
-    const endpoint = selectedMethod === 'USDT_BEP20' ? '/api/verify-bep20-tx' : '/api/verify-base-tx';
+    setShowPendingBadge(true);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/verify-busha-tx', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          txHash: txHash.trim(),
+          txId: bushaTxId.trim(),
           dealId: deal.id,
-          expectedAmount: deal.amount
+          expectedAmount: deal.amount,
+          asset: selectedMethod === 'BUSHA_USDT' ? 'USDT' : 'USDC'
         })
       });
       const data = await res.json();
       if (!res.ok) {
-        setVerificationError(data.error || 'Authoritative block verification failed.');
+        setVerificationError(data.error || 'Busha ledger verification could not be auto-completed.');
         setIsVerifying(false);
+        setShowPendingBadge(false);
         return;
       }
+      
       onPaymentSuccess();
     } catch (err) {
-      setVerificationError('Node connection failure. Ensure transaction is broadcasted.');
+      setVerificationError('Busha node connection timed out. Transaction is pending verification.');
       setIsVerifying(false);
     }
   };
@@ -150,7 +140,7 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
         </div>
 
         {/* Info Area */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-5">
           <div className="bg-[#061122] rounded-xl p-4 border border-[#D4AF37]/10 flex justify-between items-center">
             <div>
               <span className="text-xs text-gray-400 block uppercase">Trade Subject</span>
@@ -162,11 +152,24 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
             </div>
           </div>
 
-          {/* Validation Errors */}
+          {/* Validation Errors & Pending Status Badges */}
           {verificationError && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl">
-              <span className="font-bold block mb-1">Authorization/Verification Notice:</span>
+            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl">
+              <span className="font-bold block mb-0.5">Authorization Notice:</span>
               {verificationError}
+            </div>
+          )}
+
+          {showPendingBadge && (
+            <div className="p-3.5 bg-yellow-500/10 border border-yellow-500/30 text-[#D4AF37] text-xs rounded-xl flex items-center gap-2.5 animate-pulse">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4AF37]"></span>
+              </span>
+              <div>
+                <span className="font-black block uppercase tracking-wider text-[9px]">Busha Verification Pending</span>
+                Your transaction ID has been queued. Our admin team will verify the Busha credit logs shortly.
+              </div>
             </div>
           )}
 
@@ -178,7 +181,7 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
                   Pi Network Exclusive Channel
                 </span>
                 <p className="text-xs text-gray-300">
-                  You are inside the compliant Pi Browser. Standard payment channels (Paystack, Flutterwave, USDT, USDC) are hidden for Pi platform SDK compliance.
+                  You are inside the compliant Pi Browser. Standard payment channels (Paystack, Flutterwave, Busha Crypto) are hidden for Pi platform SDK compliance.
                 </p>
               </div>
 
@@ -198,117 +201,103 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
                 )}
               </button>
 
-              <p className="text-[10px] text-gray-400 italic">
-                "Pi-exclusive transaction — Secured on Pi Network"
+              <p className="text-[10px] text-gray-400 italic text-center w-full block mt-2">
+                Pi-exclusive — Secured on Pi Network
               </p>
             </div>
           ) : (
             /* Standard Browser Context */
-            <div className="space-y-5">
+            <div className="space-y-4">
               <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">
                 Select Compliance Settlement Channel:
               </span>
 
               {/* Grid of gateway selectors */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('PI')}
-                  className={`p-3.5 border rounded-xl text-left flex flex-col justify-between transition-all ${
+                  className={`p-3 border rounded-xl text-left flex flex-col justify-between transition-all ${
                     selectedMethod === 'PI' ? 'border-[#D4AF37] bg-[#D4AF37]/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
                   }`}
                 >
                   <span className="font-extrabold text-[10px] tracking-wider text-[#D4AF37]">PI SDK PORTAL</span>
-                  <span className="text-[9px] text-gray-500">Status: Verified active</span>
+                  <span className="text-[9px] text-gray-500 font-medium">Status: Verified active</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('PAYSTACK')}
-                  className={`p-3.5 border rounded-xl text-left flex flex-col justify-between transition-all ${
+                  className={`p-3 border rounded-xl text-left flex flex-col justify-between transition-all ${
                     selectedMethod === 'PAYSTACK' ? 'border-emerald-500 bg-emerald-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
                   }`}
                 >
                   <span className="font-extrabold text-[10px] tracking-wider text-emerald-400">PAYSTACK</span>
-                  <span className="text-[9px] text-gray-500">Status: {configStatus.PAYSTACK_SECRET_KEY || 'CONFIGURED'}</span>
+                  <span className="text-[9px] text-gray-500 font-medium">Status: {configStatus.PAYSTACK_SECRET_KEY || 'CONFIGURED'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('FLUTTERWAVE')}
-                  className={`p-3.5 border rounded-xl text-left flex flex-col justify-between transition-all ${
+                  className={`p-3 border rounded-xl text-left flex flex-col justify-between transition-all ${
                     selectedMethod === 'FLUTTERWAVE' ? 'border-sky-500 bg-sky-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
                   }`}
                 >
                   <span className="font-extrabold text-[10px] tracking-wider text-sky-400">FLUTTERWAVE</span>
-                  <span className="text-[9px] text-gray-500">Status: {configStatus.FLUTTERWAVE_SECRET_KEY || 'CONFIGURED'}</span>
+                  <span className="text-[9px] text-gray-500 font-medium">Status: {configStatus.FLUTTERWAVE_SECRET_KEY || 'CONFIGURED'}</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setSelectedMethod('USDT_BEP20')}
-                  className={`p-3.5 border rounded-xl text-left flex flex-col justify-between transition-all ${
-                    selectedMethod === 'USDT_BEP20' ? 'border-amber-500 bg-amber-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
+                  onClick={() => setSelectedMethod('BUSHA_USDT')}
+                  className={`p-3 border rounded-xl text-left flex flex-col justify-between transition-all ${
+                    selectedMethod === 'BUSHA_USDT' ? 'border-amber-500 bg-amber-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
                   }`}
                 >
                   <span className="font-extrabold text-[10px] tracking-wider text-amber-400">USDT BEP20 (BSC)</span>
-                  <span className="text-[9px] text-gray-500 font-mono truncate max-w-[130px]">{usdtAddress}</span>
+                  <span className="text-[9px] text-yellow-500 font-bold uppercase tracking-wider">Via Busha App</span>
                 </button>
               </div>
 
               {/* USDC BASE Option */}
               <button
                 type="button"
-                onClick={() => setSelectedMethod('USDC_BASE')}
-                className={`w-full p-4 border rounded-xl text-left flex justify-between items-center transition-all ${
-                  selectedMethod === 'USDC_BASE' ? 'border-blue-500 bg-blue-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
+                onClick={() => setSelectedMethod('BUSHA_USDC')}
+                className={`w-full p-3.5 border rounded-xl text-left flex justify-between items-center transition-all ${
+                  selectedMethod === 'BUSHA_USDC' ? 'border-blue-500 bg-blue-500/5 text-white' : 'border-white/5 bg-[#061122] text-gray-400 hover:border-white/10'
                 }`}
               >
                 <div>
                   <span className="font-extrabold text-[10px] tracking-wider text-blue-400 block">USDC (BASE LAYER-2)</span>
-                  <span className="text-[9px] text-gray-500 font-mono block mt-0.5 truncate max-w-[280px]">Vault Address: {usdcAddress}</span>
+                  <span className="text-[9px] text-gray-500 font-bold block mt-0.5">Pay with USDC Base via Busha</span>
                 </div>
-                <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">BASE L2</span>
+                <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2.5 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest font-black">Busha Base</span>
               </button>
 
-              {/* USDT BEP20 Component */}
-              {selectedMethod === 'USDT_BEP20' && (
-                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-4">
-                  <div className="flex gap-4 items-center">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${usdtAddress}`}
-                      alt="BEP20 QR"
-                      className="h-20 w-20 rounded-lg bg-white p-1 border border-white/10"
-                    />
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        BEP20 (BNB Smart Chain)
-                      </span>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-xs font-mono truncate text-gray-300">{usdtAddress}</span>
-                        <button onClick={() => handleCopy(usdtAddress)} className="text-gray-400 hover:text-white p-1 rounded hover:bg-white/5">
-                          {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Clipboard className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <a 
-                        href={`https://bscscan.com/address/${usdtAddress}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[10px] text-amber-400 flex items-center gap-1 hover:underline"
-                      >
-                        Verify on BscScan <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
+              {/* Busha USDT BEP20 View */}
+              {selectedMethod === 'BUSHA_USDT' && (
+                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl space-y-4">
+                  <div className="space-y-2">
+                    <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded font-extrabold uppercase tracking-wider">
+                      Busha USDT BEP20 Instructions
+                    </span>
+                    <ol className="text-[11px] text-gray-300 space-y-1.5 list-decimal pl-4">
+                      <li>Open your <strong>Busha App</strong> on your mobile device.</li>
+                      <li>Go to <strong>Receive</strong> &gt; Select <strong>USDT</strong> &gt; Select <strong>BEP20 (BNB Smart Chain)</strong> network.</li>
+                      <li>Copy your Busha deposit address, transfer exactly <strong className="text-[#D4AF37]">{deal.amount.toLocaleString()} USDT</strong> to it.</li>
+                      <li>Once the network completes the transfer, copy the <strong>Transaction ID / Tx Hash</strong>.</li>
+                      <li>Paste the Transaction ID in the secure portal below for instant verification.</li>
+                    </ol>
                   </div>
 
-                  <form onSubmit={verifyBlockchainTx} className="space-y-3 pt-2">
+                  <form onSubmit={verifyBushaTransaction} className="space-y-3 pt-2">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-400 block uppercase">Input BEP20 Transaction Hash (TxHash)</label>
+                      <label className="text-[10px] font-bold text-gray-400 block uppercase">Paste Busha Transaction ID / TxHash</label>
                       <input
                         type="text"
-                        value={txHash}
-                        onChange={e => setTxHash(e.target.value)}
-                        placeholder="e.g. 0x93bf1451f0412..."
+                        value={bushaTxId}
+                        onChange={e => setBushaTxId(e.target.value)}
+                        placeholder="e.g. 0x5a18c90fe72..."
                         className="w-full bg-[#061122] border border-white/10 rounded-lg p-2.5 font-mono text-white text-xs"
                         required
                       />
@@ -318,50 +307,36 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
                       disabled={isVerifying}
                       className="w-full py-2.5 bg-[#D4AF37] text-black font-black uppercase text-xs rounded-lg hover:brightness-110 flex items-center justify-center gap-1.5"
                     >
-                      {isVerifying ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Confirm BEP20 Ledger Node'}
+                      {isVerifying ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Confirm Busha Transaction ID'}
                     </button>
                   </form>
                 </div>
               )}
 
-              {/* USDC BASE Component */}
-              {selectedMethod === 'USDC_BASE' && (
-                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-4">
-                  <div className="flex gap-4 items-center">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${usdcAddress}`}
-                      alt="Base L2 QR"
-                      className="h-20 w-20 rounded-lg bg-white p-1 border border-white/10"
-                    />
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <span className="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        USDC Base (Base Mainnet)
-                      </span>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-xs font-mono truncate text-gray-300">{usdcAddress}</span>
-                        <button onClick={() => handleCopy(usdcAddress)} className="text-gray-400 hover:text-white p-1 rounded hover:bg-white/5">
-                          {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Clipboard className="h-3.5 w-3.5" />}
-                        </button>
-                      </div>
-                      <a 
-                        href={`https://basescan.org/address/${usdcAddress}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[10px] text-blue-400 flex items-center gap-1 hover:underline"
-                      >
-                        Verify on Basescan <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
+              {/* Busha USDC BASE View */}
+              {selectedMethod === 'BUSHA_USDC' && (
+                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl space-y-4">
+                  <div className="space-y-2">
+                    <span className="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded font-extrabold uppercase tracking-wider">
+                      Busha USDC Base Instructions
+                    </span>
+                    <ol className="text-[11px] text-gray-300 space-y-1.5 list-decimal pl-4">
+                      <li>Open your <strong>Busha App</strong> on your mobile device.</li>
+                      <li>Go to <strong>Receive</strong> &gt; Select <strong>USDC</strong> &gt; Select <strong>Base (Layer-2 Network)</strong>.</li>
+                      <li>Copy your Busha deposit address, transfer exactly <strong className="text-[#D4AF37]">{deal.amount.toLocaleString()} USDC</strong> to it.</li>
+                      <li>Once the network completes the transfer, copy the <strong>Transaction ID / Tx Hash</strong>.</li>
+                      <li>Paste the Transaction ID in the secure portal below for instant verification.</li>
+                    </ol>
                   </div>
 
-                  <form onSubmit={verifyBlockchainTx} className="space-y-3 pt-2">
+                  <form onSubmit={verifyBushaTransaction} className="space-y-3 pt-2">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-400 block uppercase">Input USDC Base Transaction Hash (TxHash)</label>
+                      <label className="text-[10px] font-bold text-gray-400 block uppercase">Paste Busha Transaction ID / TxHash</label>
                       <input
                         type="text"
-                        value={txHash}
-                        onChange={e => setTxHash(e.target.value)}
-                        placeholder="e.g. 0x93bf1451f0412..."
+                        value={bushaTxId}
+                        onChange={e => setBushaTxId(e.target.value)}
+                        placeholder="e.g. 0x5a18c90fe72..."
                         className="w-full bg-[#061122] border border-white/10 rounded-lg p-2.5 font-mono text-white text-xs"
                         required
                       />
@@ -371,7 +346,7 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
                       disabled={isVerifying}
                       className="w-full py-2.5 bg-[#D4AF37] text-black font-black uppercase text-xs rounded-lg hover:brightness-110 flex items-center justify-center gap-1.5"
                     >
-                      {isVerifying ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Confirm USDC Base Ledger Node'}
+                      {isVerifying ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Confirm Busha Transaction ID'}
                     </button>
                   </form>
                 </div>
