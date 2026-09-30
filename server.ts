@@ -478,6 +478,14 @@ async function startServer() {
   };
 
   // ==========================================
+  // PI NETWORK DOMAIN VALIDATION FILE ROUTE
+  // ==========================================
+  app.get('/validation-key.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send('684872ad16502d52bc09ae46056525629206d3745dc1dc207807cc5383122fb070ef7dd18ce42b75c666c232d5f9cd54b820fdec4aa372d04301284e3bb0589d');
+  });
+
+  // ==========================================
   // CONFIGURATION STATUS & INTEGRATION CHECK
   // ==========================================
   app.get('/api/config-status', (req, res) => {
