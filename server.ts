@@ -1029,6 +1029,108 @@ async function startServer() {
   // ==========================================
   // HARD BLOCK EXPLORER / GATEWAY VERIFICATION ENDPOINTS
   // ==========================================
+  // ==========================================
+  // OFFICIAL PI PORTAL SERVER-SIDE APPROVAL & COMPLETION
+  // ==========================================
+  app.post('/api/pi-payment/approve', async (req, res) => {
+    const { paymentId } = req.body;
+    if (!paymentId) {
+      return res.status(400).json({ error: 'Missing paymentId parameter.' });
+    }
+
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      console.warn("PI_API_KEY is not configured on the server. Approval cannot connect to Pi Platform APIs.");
+      return res.status(400).json({ error: 'PI_API_KEY is not configured on the server.' });
+    }
+
+    try {
+      console.log(`Approving paymentId: ${paymentId} on official Pi Network API...`);
+      const response = await fetch(`https://api.minepi.com/v2/payments/${paymentId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Pi approval error response: ${errText}`);
+        return res.status(400).json({ error: `Pi platform approval failed: ${errText}` });
+      }
+
+      const paymentData = await response.json();
+      console.log(`Pi paymentId: ${paymentId} approved successfully:`, paymentData);
+      return res.json({ success: true, payment: paymentData });
+    } catch (err: any) {
+      console.error(`Pi payment approval exception:`, err);
+      return res.status(500).json({ error: 'Internal server approval failure on Pi Network connection.' });
+    }
+  });
+
+  app.post('/api/pi-payment/complete', async (req, res) => {
+    const { paymentId, txid, dealId } = req.body;
+    if (!paymentId || !txid || !dealId) {
+      return res.status(400).json({ error: 'Missing paymentId, txid, or dealId parameter.' });
+    }
+
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      console.warn("PI_API_KEY is not configured on the server. Completion cannot connect to Pi Platform APIs.");
+      return res.status(400).json({ error: 'PI_API_KEY is not configured on the server.' });
+    }
+
+    try {
+      console.log(`Completing paymentId: ${paymentId} on official Pi Network API with txid: ${txid}...`);
+      const response = await fetch(`https://api.minepi.com/v2/payments/${paymentId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ txid })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Pi completion error response: ${errText}`);
+        return res.status(400).json({ error: `Pi platform completion failed: ${errText}` });
+      }
+
+      const paymentData = await response.json();
+      console.log(`Pi paymentId: ${paymentId} completed successfully:`, paymentData);
+
+      // Severe security verifications
+      const deal = await getDealById(dealId);
+      if (!deal) {
+        return res.status(404).json({ error: 'Trade deal room not found.' });
+      }
+
+      const expectedAmount = Number(deal.amount);
+      const returnedAmount = Number(paymentData.amount);
+      if (Math.abs(expectedAmount - returnedAmount) > 0.01) {
+        return res.status(400).json({ error: `Security mismatch: Expected amount ${expectedAmount} but got ${returnedAmount}` });
+      }
+
+      // Verify recipient matches sandbox wallet
+      const expectedRecipient = 'GAI7ZZQJ7PZNUZDODWKD42BMKLIDLD4JMXZV74TZEIGBG5UHF2MXE2CK';
+      const actualRecipient = paymentData.to_address || paymentData.recipient;
+      if (actualRecipient && actualRecipient !== expectedRecipient) {
+        console.warn(`Recipient wallet mismatch! Expected ${expectedRecipient}, Got: ${actualRecipient}`);
+      }
+
+      // Transition state to Paid
+      await updateDeal(dealId, { paymentStatus: 'Paid' });
+      await logAudit(dealId, 'Pi Payment Success', `Real Pi payment completed on Testnet. ID: ${paymentId}, Txid: ${txid}, Amount: ${returnedAmount}`);
+
+      return res.json({ success: true, payment: paymentData });
+    } catch (err: any) {
+      console.error(`Pi payment completion exception:`, err);
+      return res.status(500).json({ error: 'Internal server completion failure on Pi Network connection.' });
+    }
+  });
+
   app.post('/api/payments/pi/verify', (req, res) => {
     const { paymentId, txid, expectedAmount } = req.body;
     if (!process.env.PI_API_KEY) {

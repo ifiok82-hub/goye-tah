@@ -178,11 +178,18 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
             <div className="space-y-6 text-center py-4">
               <div className="p-5 border border-[#D4AF37]/20 rounded-2xl bg-[#D4AF37]/5 space-y-3">
                 <span className="text-xs font-bold text-[#D4AF37] block uppercase tracking-wider">
-                  Pi Network Exclusive Channel
+                  Pi Testnet — Developer Testing Only
                 </span>
                 <p className="text-xs text-gray-300">
                   You are inside the compliant Pi Browser. Standard payment channels (Paystack, Flutterwave, Busha Crypto) are hidden for Pi platform SDK compliance.
                 </p>
+                <p className="text-[10px] text-yellow-400 font-medium">
+                  Notice: Testnet Pi has no real-world monetary value.
+                </p>
+                <div className="text-[9px] text-gray-400 font-mono pt-2 border-t border-[#D4AF37]/10">
+                  Target Sandbox Wallet:<br/>
+                  <span className="break-all select-all font-bold">GAI7ZZQJ7PZNUZDODWKD42BMKLIDLD4JMXZV74TZEIGBG5UHF2MXE2CK</span>
+                </div>
               </div>
 
               <button
