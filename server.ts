@@ -495,6 +495,11 @@ async function startServer() {
     res.status(200).send('GOYE TRADE ASSURANCE HUB - TERMS OF SERVICE\n\n1. Acceptance of Terms: By accessing this transaction-assurance room, you accept our codes and protocols in full.\n2. Non-custodial Escrow: The hub serves strictly as a trade deal coordinator. Funds are handled non-custodially.\n\nCorporate Identity: GOYEDAGOSMESS ENTERPRISE (RC BN3583778)');
   });
 
+  app.get('/terms', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send('GOYE TRADE ASSURANCE HUB - TERMS OF SERVICE\n\n1. Acceptance of Terms: By accessing this transaction-assurance room, you accept our codes and protocols in full.\n2. Non-custodial Escrow: The hub serves strictly as a trade deal coordinator. Funds are handled non-custodially.\n\nCorporate Identity: GOYEDAGOSMESS ENTERPRISE (RC BN3583778)');
+  });
+
   app.get('/privacy-policy', (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
     res.status(200).send('GOYE TRADE ASSURANCE HUB - PRIVACY POLICY\n\n1. Privacy and Trust Covenants: We protect and limit data retention to transactions in active scope.\n2. Security parameters are managed server-side and fully compliant with PWA codes.\n\nCorporate Identity: GOYEDAGOSMESS ENTERPRISE (RC BN3583778)');
