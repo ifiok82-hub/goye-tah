@@ -966,42 +966,115 @@ Disclaimer: Contract templates are provided for general informational purposes a
           <div className="space-y-16 py-4">
             
             {/* HERO PANEL */}
-            <section className="bg-gradient-to-b from-[#111827] to-[#0a0f1e] rounded-3xl border border-white/5 p-8 sm:p-12 text-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-[#7c3aed]/10 rounded-full blur-3xl pointer-events-none"></div>
+            <section className="bg-gradient-to-br from-[#111827] via-[#0b1020] to-[#060b1a] rounded-3xl border border-white/10 p-6 sm:p-12 relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[#7c3aed]/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#06b6d4]/10 rounded-full blur-3xl pointer-events-none"></div>
               
-              <div className="max-w-3xl mx-auto space-y-6 relative z-10">
-                <span className="text-xs bg-[#7c3aed]/20 text-[#7c3aed] border border-[#7c3aed]/40 px-3 py-1 rounded-full uppercase tracking-widest font-extrabold inline-flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5" /> Sovereign Business Infrastructure
-                </span>
-                
-                <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-                  Close Business Deals <br className="hidden sm:inline" />
-                  <span className="bg-gradient-to-r from-white via-[#7c3aed] to-[#facc15] bg-clip-text text-transparent">
-                    With Confidence
+              <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div className="lg:col-span-7 space-y-6 text-left">
+                  <span className="text-xs bg-[#7c3aed]/20 text-[#7c3aed] border border-[#7c3aed]/40 px-3.5 py-1 rounded-full uppercase tracking-widest font-extrabold inline-flex items-center gap-1.5 shadow-sm">
+                    <ShieldCheck className="h-4 w-4 text-[#7c3aed]" /> SOVEREIGN BUSINESS INFRASTRUCTURE
                   </span>
-                </h1>
+                  
+                  <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white">
+                    Close Business Deals <br />
+                    <span className="bg-gradient-to-r from-white via-[#7c3aed] to-[#facc15] bg-clip-text text-transparent">
+                      With Confidence
+                    </span>
+                  </h1>
 
-                <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-                  Create professional contracts, organize deal milestones, issue verified invoices, check business information connectivity, and maintain a clear transaction record before you pay. Provided by <span className="font-bold text-white">GOYEDAGOSMESS ENTERPRISE (RC BN3583778)</span>.
-                </p>
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    Create professional contracts, organize deal milestones, issue verified invoices, check business information connectivity, and maintain a secure transaction record before you pay. Provided by <span className="font-bold text-white">GOYEDAGOSMESS ENTERPRISE (RC BN3583778)</span>.
+                  </p>
 
-                <div className="flex flex-wrap justify-center gap-4">
-                  <button 
-                    onClick={() => setActiveTab('deals')} 
-                    className="px-6 py-3.5 bg-[#7c3aed] text-white font-extrabold text-xs tracking-wider uppercase rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all"
-                  >
-                    Create Secure Deal
-                  </button>
-                  <button 
-                    onClick={() => {
-                      const sec = document.getElementById('how-it-works');
-                      sec?.scrollIntoView({ behavior: 'smooth' });
-                    }} 
-                    className="px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 text-white font-bold text-xs tracking-wider uppercase rounded-xl transition-all"
-                  >
-                    How It Works
-                  </button>
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                    <button 
+                      onClick={() => setActiveTab('deals')} 
+                      className="px-6 py-3.5 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white font-extrabold text-xs tracking-wider uppercase rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <Lock className="h-4 w-4" /> Create Secure Deal
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const sec = document.getElementById('how-it-works');
+                        sec?.scrollIntoView({ behavior: 'smooth' });
+                      }} 
+                      className="px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 text-white font-bold text-xs tracking-wider uppercase rounded-xl transition-all flex items-center gap-2"
+                    >
+                      How It Works <ChevronRight className="h-4 w-4 text-[#facc15]" />
+                    </button>
+                  </div>
                 </div>
+
+                <div className="lg:col-span-5 flex justify-center">
+                  <div className="w-full max-w-sm bg-[#060b1a]/80 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur-md relative group hover:border-[#7c3aed]/50 transition-all">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative space-y-4 text-left">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
+                          <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Escrow Vault Active</span>
+                        </div>
+                        <span className="text-[10px] bg-[#facc15]/20 text-[#facc15] px-2 py-0.5 rounded font-mono font-bold">RC BN3583778</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">Trade Assurance Status</span>
+                          <span className="text-emerald-400 font-bold">Secured & Verified</span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] w-full rounded-full"></div>
+                        </div>
+                      </div>
+                      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Smart Contract ID</span>
+                          <span className="font-mono text-white">#GOYE-9832-SEC</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Multi-Party Escrow</span>
+                          <span className="text-[#facc15] font-bold">Protected</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 flex items-center justify-between text-[11px] text-gray-400">
+                        <span>Global Settlement Ready</span>
+                        <Shield className="h-4 w-4 text-[#7c3aed]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* FOUR FEATURE CARDS */}
+            <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div onClick={() => setActiveTab('deals')} className="bg-[#111827] border border-white/10 p-6 rounded-2xl hover:border-[#7c3aed] cursor-pointer transition-all space-y-3 group shadow-lg">
+                <div className="h-10 w-10 bg-[#7c3aed]/10 rounded-xl flex items-center justify-center text-[#7c3aed] group-hover:scale-110 transition-transform">
+                  <Shield className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-extrabold text-white">SECURE DEALS</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">Trust & protection for milestone-based business transactions.</p>
+              </div>
+              <div onClick={() => setActiveTab('contracts')} className="bg-[#111827] border border-white/10 p-6 rounded-2xl hover:border-[#7c3aed] cursor-pointer transition-all space-y-3 group shadow-lg">
+                <div className="h-10 w-10 bg-[#06b6d4]/10 rounded-xl flex items-center justify-center text-[#06b6d4] group-hover:scale-110 transition-transform">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-extrabold text-white">VERIFIED CONTRACTS</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">Legit & transparent agreements with digital signature stamps.</p>
+              </div>
+              <div onClick={() => setActiveTab('invoices')} className="bg-[#111827] border border-white/10 p-6 rounded-2xl hover:border-[#7c3aed] cursor-pointer transition-all space-y-3 group shadow-lg">
+                <div className="h-10 w-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center text-[#10b981] group-hover:scale-110 transition-transform">
+                  <DollarSign className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-extrabold text-white">INSTANT INVOICES</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">Fast & reliable professional billing and paylink settlement.</p>
+              </div>
+              <div onClick={() => setActiveTab('vault')} className="bg-[#111827] border border-white/10 p-6 rounded-2xl hover:border-[#7c3aed] cursor-pointer transition-all space-y-3 group shadow-lg">
+                <div className="h-10 w-10 bg-[#facc15]/10 rounded-xl flex items-center justify-center text-[#facc15] group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-extrabold text-white">TRADE ASSURANCE</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">Safe transaction management and audit logs provided by GOYEDAGOSMESS.</p>
               </div>
             </section>
 
@@ -2354,33 +2427,33 @@ Disclaimer: Contract templates are provided for general informational purposes a
       </main>
 
       {/* FOOTER SECTION */}
-      <footer className="bg-[#0a0f1e] border-t border-white/10 py-12 px-4 sm:px-6 text-left relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10 text-xs">
+      <footer className="bg-[#060b1a] border-t border-white/10 py-16 px-4 sm:px-6 text-left relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#7c3aed]/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 relative z-10 text-xs">
           
-          <div className="md:col-span-6 space-y-4">
+          <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 bg-[#7c3aed] rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/30">
                 <Shield className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-black text-white">GOYE TRADE ASSURANCE HUB</span>
+              <span className="text-base font-black text-white">GOYE TRADE ASSURANCE HUB</span>
             </div>
 
-            <p className="text-gray-400 leading-relaxed max-w-md">
+            <p className="text-gray-400 leading-relaxed">
               Secure Deals • Verified Contracts • Instant Invoices • Trade Assurance. Provided by <span className="font-bold text-white">GOYEDAGOSMESS ENTERPRISE (RC BN3583778)</span>.
             </p>
 
-            {/* CRITICAL DISCLAIMER REQUIRED BY POINT 21 */}
-            <div className="p-4 bg-white/[0.01] border border-white/5 rounded-xl max-w-md">
-              <span className="font-extrabold text-white block mb-1 uppercase tracking-wider text-[10px]">Important Disclaimer</span>
+            <div className="p-3.5 bg-white/[0.02] border border-white/5 rounded-xl space-y-1">
+              <span className="font-extrabold text-white block uppercase tracking-wider text-[9px]">Important Disclaimer</span>
               <p className="text-[10px] text-gray-500 leading-relaxed">
-                GOYE TRADE ASSURANCE HUB is an independent trade-assurance and transaction-management platform. It is not a bank or licensed financial institution. Contract templates are provided for general information and do not constitute legal advice. Verification results are informational and do not guarantee the legitimacy, solvency, performance or delivery of any party.
+                GOYE TRADE ASSURANCE HUB is an independent trade-assurance and transaction-management platform. It is not a bank or licensed financial institution. Contract templates are provided for general information and do not constitute legal advice.
               </p>
             </div>
           </div>
 
-          <div className="md:col-span-3 space-y-4 text-left">
-            <span className="font-extrabold uppercase tracking-widest text-gray-400 block text-[10px]">Secure Directory Links</span>
-            <ul className="space-y-2 text-gray-400">
+          <div className="lg:col-span-3 space-y-4">
+            <span className="font-extrabold uppercase tracking-widest text-[#facc15] block text-[10px]">Secure Directory Links</span>
+            <ul className="space-y-2 text-gray-400 font-medium">
               <li><button onClick={() => setActiveTab('home')} className="hover:text-white transition-colors">Home Dashboard</button></li>
               <li><button onClick={() => setActiveTab('deals')} className="hover:text-white transition-colors">Trade Deal Room</button></li>
               <li><button onClick={() => setActiveTab('contracts')} className="hover:text-white transition-colors">Contract Builder</button></li>
@@ -2390,20 +2463,30 @@ Disclaimer: Contract templates are provided for general informational purposes a
             </ul>
           </div>
 
-          <div className="md:col-span-3 space-y-4 text-left">
-            <span className="font-extrabold uppercase tracking-widest text-gray-400 block text-[10px]">Regulatory Compliance</span>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:underline">Terms of Use</a></li>
-              <li><a href="#" className="hover:underline">Privacy Covenants</a></li>
-              <li><a href="#" className="hover:underline">Arbitration Policy</a></li>
-              <li><a href="#" className="hover:underline">Transaction Management Codes</a></li>
+          <div className="lg:col-span-3 space-y-4">
+            <span className="font-extrabold uppercase tracking-widest text-[#facc15] block text-[10px]">Legal & Compliance</span>
+            <ul className="space-y-2 text-gray-400 font-medium">
+              <li><a href="/terms" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Terms of Use</a></li>
+              <li><a href="/privacy-policy" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="/terms" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Money Covenants</a></li>
+              <li><a href="/terms" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Transaction Policy</a></li>
+              <li><a href="/terms" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Dispute Resolution</a></li>
             </ul>
+          </div>
 
-            <div className="pt-2">
-              <span className="text-[10px] font-bold text-gray-500 block">Corporate Support Desk:</span>
-              <a href="https://wa.me/2348083583778" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#10b981] text-white text-[10px] font-bold rounded-lg mt-1 hover:brightness-110">
-                <Phone className="h-3 w-3 shrink-0" /> WhatsApp Support
-              </a>
+          <div className="lg:col-span-2 space-y-4">
+            <span className="font-extrabold uppercase tracking-widest text-[#facc15] block text-[10px]">Trust & Network</span>
+            <div className="space-y-3">
+              <div className="inline-block px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-extrabold rounded uppercase tracking-wider">
+                PI TESTNET • DEVELOPER TESTING ONLY
+              </div>
+              
+              <div className="pt-1">
+                <span className="text-[10px] font-bold text-gray-400 block mb-1">Corporate Support Desk:</span>
+                <a href="https://wa.me/2348083583778" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#10b981] text-white text-[10px] font-bold rounded-lg hover:brightness-110 shadow-lg shadow-[#10b981]/20">
+                  <Phone className="h-3.5 w-3.5 shrink-0" /> WhatsApp Support
+                </a>
+              </div>
             </div>
           </div>
 
@@ -2411,7 +2494,7 @@ Disclaimer: Contract templates are provided for general informational purposes a
 
         <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 relative z-10">
           <span>© 2026 GOYEDAGOSMESS ENTERPRISE. All Rights Reserved. RC BN3583778.</span>
-          <span className="font-bold text-[#facc15]">Secure Deal Management Protocol</span>
+          <span className="font-bold text-[#facc15]">Secure Deal Management Protocol • Hosted on Vercel</span>
         </div>
       </footer>
 

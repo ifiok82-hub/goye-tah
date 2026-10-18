@@ -39,30 +39,59 @@ export default function PaymentAdapter({ deal, onClose, onPaymentSuccess, config
         metadata: { dealId: deal.id }
       };
 
+      try {
+        await piInstance.authenticate(['username', 'payments'], async (payment: any) => {
+          if (payment) {
+            console.log("Incomplete payment found:", payment);
+            await fetch('/api/pi/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction?.txid, dealId: deal.id })
+            });
+          }
+        });
+      } catch (authErr) {
+        console.warn("Pi authenticate warning:", authErr);
+      }
+
       const paymentCallbacks = {
         onReadyForServerApproval: async (paymentId: string) => {
-          const res = await fetch(`/api/pi-payment/approve`, {
+          let res = await fetch(`/api/pi/approve`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ paymentId })
           });
+          if (!res.ok) {
+            res = await fetch(`/api/pi-payment/approve`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId })
+            });
+          }
           return res.ok;
         },
         onReadyForServerCompletion: async (paymentId: string, txid: string) => {
-          const res = await fetch(`/api/pi-payment/complete`, {
+          let res = await fetch(`/api/pi/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ paymentId, txid, dealId: deal.id })
           });
+          if (!res.ok) {
+            res = await fetch(`/api/pi-payment/complete`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId, txid, dealId: deal.id })
+            });
+          }
           if (res.ok) {
             onPaymentSuccess();
           }
         },
-        onCancel: () => {
+        onCancel: (paymentId: any) => {
           setVerificationError('Transaction cancelled by user.');
           setIsVerifying(false);
         },
-        onError: (err: any) => {
+        onError: (err: any, payment: any) => {
           setVerificationError(`Pi Network Error: ${err.message || err}`);
           setIsVerifying(false);
         }

@@ -1037,6 +1037,90 @@ async function startServer() {
   // ==========================================
   // OFFICIAL PI PORTAL SERVER-SIDE APPROVAL & COMPLETION
   // ==========================================
+  app.post('/api/pi/approve', async (req, res) => {
+    const { paymentId } = req.body;
+    if (!paymentId) {
+      return res.status(400).json({ error: 'Missing paymentId parameter.' });
+    }
+
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      console.warn("PI_API_KEY is not configured on the server. Approval cannot connect to Pi Platform APIs.");
+      return res.status(400).json({ error: 'PI_API_KEY is not configured on the server.' });
+    }
+
+    try {
+      console.log(`Approving paymentId: ${paymentId} on official Pi Testnet API...`);
+      const response = await fetch(`https://api.testnet.minepi.com/v2/payments/${paymentId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Pi approval error response: ${errText}`);
+        return res.status(400).json({ error: `Pi platform approval failed: ${errText}` });
+      }
+
+      const paymentData = await response.json();
+      console.log(`Pi paymentId: ${paymentId} approved successfully:`, paymentData);
+      return res.json({ success: true, payment: paymentData });
+    } catch (err: any) {
+      console.error(`Pi payment approval exception:`, err);
+      return res.status(500).json({ error: 'Internal server approval failure on Pi Network connection.' });
+    }
+  });
+
+  app.post('/api/pi/complete', async (req, res) => {
+    const { paymentId, txid, dealId } = req.body;
+    if (!paymentId || !txid) {
+      return res.status(400).json({ error: 'Missing paymentId or txid parameter.' });
+    }
+
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      console.warn("PI_API_KEY is not configured on the server. Completion cannot connect to Pi Platform APIs.");
+      return res.status(400).json({ error: 'PI_API_KEY is not configured on the server.' });
+    }
+
+    try {
+      console.log(`Completing paymentId: ${paymentId} on official Pi Testnet API with txid: ${txid}...`);
+      const response = await fetch(`https://api.testnet.minepi.com/v2/payments/${paymentId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ txid })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Pi completion error response: ${errText}`);
+        return res.status(400).json({ error: `Pi platform completion failed: ${errText}` });
+      }
+
+      const paymentData = await response.json();
+      console.log(`Pi paymentId: ${paymentId} completed successfully:`, paymentData);
+
+      if (dealId) {
+        const deal = await getDealById(dealId);
+        if (deal) {
+          await updateDeal(dealId, { paymentStatus: 'Paid' });
+          await logAudit(dealId, 'Pi Payment Success', `Real Pi payment completed on Testnet. ID: ${paymentId}, Txid: ${txid}`);
+        }
+      }
+
+      return res.json({ success: true, payment: paymentData });
+    } catch (err: any) {
+      console.error(`Pi payment completion exception:`, err);
+      return res.status(500).json({ error: 'Internal server completion failure on Pi Network connection.' });
+    }
+  });
+
   app.post('/api/pi-payment/approve', async (req, res) => {
     const { paymentId } = req.body;
     if (!paymentId) {
